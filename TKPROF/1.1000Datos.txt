@@ -1,0 +1,297 @@
+
+TKPROF: Release 11.2.0.1.0 - Development on Sáb Abr 4 01:34:53 2020
+
+Copyright (c) 1982, 2009, Oracle and/or its affiliates.  All rights reserved.
+
+Trace file: xe_ora_11796.trc
+Sort options: default
+
+********************************************************************************
+count    = number of times OCI procedure was executed
+cpu      = cpu time in seconds executing 
+elapsed  = elapsed time in seconds executing
+disk     = number of physical reads of buffers from disk
+query    = number of buffers gotten for consistent read
+current  = number of buffers gotten in current mode (usually for update)
+rows     = number of rows processed by the fetch or execute call
+********************************************************************************
+
+SQL ID: 14ys3d7nmvxbv
+Plan Hash: 0
+ALTER SESSION SET SQL_TRACE = TRUE
+
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        0      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        0      0.00       0.00          0          0          0           0
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        1      0.00       0.00          0          0          0           0
+
+Misses in library cache during parse: 0
+Misses in library cache during execute: 1
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+********************************************************************************
+
+SELECT sv, COUNT(*) AS cuantos
+FROM(SELECT CASE
+WHEN SUM(unidades) BETWEEN 0 AND 50 THEN 1
+WHEN SUM(unidades) BETWEEN 51 AND 100 THEN 2
+WHEN SUM(unidades) BETWEEN 101 AND 150 THEN 3
+ELSE 4
+END AS sv
+FROM venta
+GROUP BY idvendedor
+)
+GROUP BY sv
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.01       0.00          0       2757          0           4
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.01       0.00          0       2757          0           4
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      4  HASH GROUP BY (cr=2757 pr=0 pw=0 time=7301 us cost=10 size=186 card=62)
+    638   VIEW  (cr=2757 pr=0 pw=0 time=6971 us cost=9 size=186 card=62)
+    638    HASH GROUP BY (cr=2757 pr=0 pw=0 time=6840 us cost=9 size=372 card=62)
+   1000     TABLE ACCESS FULL VENTA (cr=2757 pr=0 pw=0 time=5978 us cost=8 size=600 card=100)
+
+********************************************************************************
+
+SELECT sv, COUNT(*) AS cuantos
+FROM
+(SELECT CASE
+WHEN sumin BETWEEN 0 AND 50 THEN 1
+WHEN sumin BETWEEN 51 AND 100 THEN 2
+WHEN sumin BETWEEN 101 AND 150 THEN 3
+ELSE 4
+END AS sv
+FROM (SELECT (SELECT SUM(unidades)
+FROM venta v2
+WHERE v2.idvendedor = v1.idvendedor) AS sumin
+FROM visvend v1
+)
+)
+GROUP BY sv
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      2.40       2.41          0    1761723          0           4
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      2.40       2.41          0    1761723          0           4
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+    638  SORT AGGREGATE (cr=1758966 pr=0 pw=0 time=2404299 us)
+   1000   TABLE ACCESS FULL VENTA (cr=1758966 pr=0 pw=0 time=2389366 us cost=8 size=12 card=2)
+      4  HASH GROUP BY (cr=1761723 pr=0 pw=0 time=2413922 us cost=10 size=186 card=62)
+    638   VIEW  (cr=1761723 pr=0 pw=0 time=2574178 us cost=9 size=186 card=62)
+    638    VIEW  VISVEND (cr=2757 pr=0 pw=0 time=7129 us cost=9 size=806 card=62)
+    638     HASH UNIQUE (cr=2757 pr=0 pw=0 time=6745 us cost=9 size=186 card=62)
+   1000      TABLE ACCESS FULL VENTA (cr=2757 pr=0 pw=0 time=5056 us cost=8 size=300 card=100)
+
+********************************************************************************
+
+SELECT sv, COUNT(*)
+FROM clases
+GROUP BY sv
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.01       0.00          0       2760          0           4
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.01       0.00          0       2760          0           4
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      4  HASH GROUP BY (cr=2760 pr=0 pw=0 time=7250 us cost=14 size=52 card=1)
+    638   MERGE JOIN  (cr=2760 pr=0 pw=0 time=7250 us cost=13 size=52 card=1)
+      4    SORT JOIN (cr=3 pr=0 pw=0 time=91 us cost=3 size=117 card=3)
+      4     TABLE ACCESS FULL RANGO (cr=3 pr=0 pw=0 time=68 us cost=2 size=117 card=3)
+    638    FILTER  (cr=2757 pr=0 pw=0 time=6818 us)
+   2446     SORT JOIN (cr=2757 pr=0 pw=0 time=7187 us cost=10 size=806 card=62)
+    638      VIEW  TOTALES (cr=2757 pr=0 pw=0 time=6599 us cost=9 size=806 card=62)
+    638       SORT GROUP BY (cr=2757 pr=0 pw=0 time=6598 us cost=9 size=372 card=62)
+   1000        TABLE ACCESS FULL VENTA (cr=2757 pr=0 pw=0 time=6180 us cost=8 size=600 card=100)
+
+********************************************************************************
+
+SELECT clase(v.idvendedor) sv, COUNT(*) AS cuantos
+FROM visvend v
+GROUP BY clase(v.idvendedor)
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.06       0.05          0       2757          0           4
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.06       0.05          0       2757          0           4
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      4  HASH GROUP BY (cr=1761723 pr=0 pw=0 time=2478783 us cost=10 size=186 card=62)
+    638   VIEW  VISVEND (cr=2757 pr=0 pw=0 time=6132 us cost=9 size=186 card=62)
+    638    HASH UNIQUE (cr=2757 pr=0 pw=0 time=6004 us cost=9 size=186 card=62)
+   1000     TABLE ACCESS FULL VENTA (cr=2757 pr=0 pw=0 time=4665 us cost=8 size=300 card=100)
+
+********************************************************************************
+
+SQL ID: 2x3p8cya2yfam
+Plan Hash: 2032133498
+SELECT SUM(UNIDADES) 
+FROM
+ VENTA WHERE IDVENDEDOR = :B1 
+
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute    638      0.00       0.00          0          0          0           0
+Fetch      638      2.40       2.41          0    1758966          0         638
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total     1277      2.40       2.42          0    1758966          0         638
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS   (recursive depth: 1)
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      1  SORT AGGREGATE (cr=2757 pr=0 pw=0 time=4037 us)
+      1   TABLE ACCESS FULL VENTA (cr=2757 pr=0 pw=0 time=4024 us cost=8 size=6 card=1)
+
+********************************************************************************
+
+SELECT sv, COUNT(*) AS cuantos
+FROM
+(
+SELECT DISTINCT idvendedor,
+clasin(SUM(unidades) OVER (PARTITION BY idvendedor))
+AS sv
+FROM venta
+)
+GROUP BY sv
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.01       0.00          0       2757          0           4
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.01       0.00          0       2757          0           4
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      4  HASH GROUP BY (cr=2757 pr=0 pw=0 time=8398 us cost=11 size=754 card=58)
+    638   VIEW  (cr=2757 pr=0 pw=0 time=8221 us cost=10 size=754 card=58)
+    638    HASH UNIQUE (cr=2757 pr=0 pw=0 time=8220 us cost=10 size=348 card=58)
+   1000     WINDOW SORT (cr=2757 pr=0 pw=0 time=6485 us cost=10 size=348 card=58)
+   1000      TABLE ACCESS FULL VENTA (cr=2757 pr=0 pw=0 time=5321 us cost=8 size=60000 card=10000)
+
+********************************************************************************
+
+SELECT spid FROM sys.v_$process
+WHERE addr = (SELECT paddr FROM sys.v_$session
+              WHERE audsid = USERENV('sessionid')
+             )
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute      1      0.00       0.00          0          0          0           0
+Fetch        2      0.00       0.00          0          0          0           1
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total        4      0.00       0.00          0          0          0           1
+
+Misses in library cache during parse: 0
+Optimizer mode: ALL_ROWS
+Parsing user id: SYS
+
+Rows     Row Source Operation
+-------  ---------------------------------------------------
+      1  FIXED TABLE FULL X$KSUPR (cr=0 pr=0 pw=0 time=225 us cost=0 size=46 card=1)
+      1   NESTED LOOPS  (cr=0 pr=0 pw=0 time=159 us cost=0 size=110 card=1)
+      1    NESTED LOOPS  (cr=0 pr=0 pw=0 time=152 us cost=0 size=97 card=1)
+      1     FIXED TABLE FULL X$KSUSE (cr=0 pr=0 pw=0 time=141 us cost=0 size=71 card=1)
+      1     FIXED TABLE FIXED INDEX X$KSLWT (ind:1) (cr=0 pr=0 pw=0 time=9 us cost=0 size=26 card=1)
+      1    FIXED TABLE FIXED INDEX X$KSLED (ind:2) (cr=0 pr=0 pw=0 time=2 us cost=0 size=13 card=1)
+
+
+
+
+********************************************************************************
+
+OVERALL TOTALS FOR ALL NON-RECURSIVE STATEMENTS
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        6      0.00       0.00          0          0          0           0
+Execute      7      0.00       0.00          0          0          0           0
+Fetch       12      2.51       2.49          0    1772754          0          21
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total       25      2.51       2.49          0    1772754          0          21
+
+Misses in library cache during parse: 0
+Misses in library cache during execute: 1
+
+
+OVERALL TOTALS FOR ALL RECURSIVE STATEMENTS
+
+call     count       cpu    elapsed       disk      query    current        rows
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+Parse        1      0.00       0.00          0          0          0           0
+Execute    638      0.00       0.00          0          0          0           0
+Fetch      638      2.40       2.41          0    1758966          0         638
+------- ------  -------- ---------- ---------- ---------- ----------  ----------
+total     1277      2.40       2.42          0    1758966          0         638
+
+Misses in library cache during parse: 0
+
+    7  user  SQL statements in session.
+    1  internal SQL statements in session.
+    8  SQL statements in session.
+********************************************************************************
+Trace file: xe_ora_11796.trc
+Trace file compatibility: 11.1.0.7
+Sort options: default
+
+       1  session in tracefile.
+       7  user  SQL statements in trace file.
+       1  internal SQL statements in trace file.
+       8  SQL statements in trace file.
+       8  unique SQL statements in trace file.
+    2091  lines in trace file.
+     111  elapsed seconds in trace file.
+
+
